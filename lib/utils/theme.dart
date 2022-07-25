@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 abstract class AppColors {
   static const themeColor = Color(0xFFe5d4ef);
   static const secThemeColor = Color(0xFFfbe0e0);
+  static const secThemeColorDark = Color.fromARGB(255, 170, 134, 170);
+
   static const tertThemeColor = Color(0xFFd7f9f8);
   static const lightBack = Color(0xFFffffea);
   static const lightBack2 = Color(0xFffff0d4);

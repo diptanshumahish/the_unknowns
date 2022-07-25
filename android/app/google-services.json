@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:369210376167:android:3e23f4a48ac2711f7ac742",
+        "mobilesdk_app_id": "1:369210376167:android:c18f3eeaa61b32827ac742",
         "android_client_info": {
-          "package_name": "com.diptanshumahish.anochat"
+          "package_name": "com.diptanshumahish.theUnknowns"
         }
       },
       "oauth_client": [
