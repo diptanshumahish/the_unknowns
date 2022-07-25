@@ -1,28 +1,56 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:async';
+
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:the_unknowns/utils/theme.dart';
 
+// ignore: must_be_immutable
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({Key? key}) : super(key: key);
+  var user;
+  ChatScreen({Key? key, required this.user}) : super(key: key);
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  Future sendMessage(String message, String time) async {
-    await FirebaseFirestore.instance.collection('messages').add({
-      'messagebody': message,
-      'Time': time,
+  final _messageController = TextEditingController();
+  final database = FirebaseDatabase.instance.ref();
+  late StreamSubscription _messageStream;
+  // ignore: prefer_typing_uninitialized_variables
+  var message;
+
+  @override
+  void initState() {
+    _activateListeners();
+    super.initState();
+  }
+
+  void _activateListeners() {
+    _messageStream = database.child('messages').onValue.listen((event) {
+      database.child('messages').onValue.listen((event) {
+        var data = <Map<String, dynamic>>.add(event.snapshot.value);
+        setState(() {
+          message = messagebody;
+        });
+      });
     });
   }
 
   @override
+  void dispose() {
+    _messageController.dispose();
+    _activateListeners();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final time = DateTime.now();
-    final _messageController = TextEditingController();
+    final ref = database.child('message/messagebody');
+    //set
+
     var cond = Theme.of(context).brightness;
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
@@ -64,40 +92,55 @@ class _ChatScreenState extends State<ChatScreen> {
             child: Container(
               width: width,
               height: height * 0.08,
-              color: Colors.transparent,
+              color: cond == Brightness.dark
+                  ? AppColors.darkBack
+                  : AppColors.secThemeColor,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
                   children: [
                     Container(
+                      height: height * 0.04,
+                      width: width * 0.7,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10)),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 10),
                         child: TextField(
                           controller: _messageController,
                           style: TextStyle(
                               fontSize: 20,
-                              color: AppColors.darkBack,
+                              color: cond == Brightness.dark
+                                  ? AppColors.lightBack
+                                  : AppColors.darkBack,
                               letterSpacing: 2,
                               fontWeight: FontWeight.bold),
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                               hintText: "Enter your message",
                               focusedBorder: InputBorder.none,
                               enabledBorder: InputBorder.none),
                         ),
                       ),
-                      height: height * 0.04,
-                      width: width * 0.7,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10)),
                     ),
                     Spacer(),
                     IconButton(
                         onPressed: () {},
                         icon: Icon(CupertinoIcons.add_circled_solid)),
                     IconButton(
-                        onPressed: () {
-                          sendMessage(_messageController.text.trim(),
-                              time.toString().trim());
+                        onPressed: () async {
+                          final newMessage = <String, dynamic>{
+                            'messagebody': _messageController.text.trim(),
+                            'time': DateTime.now().millisecondsSinceEpoch
+                          };
+
+                          try {
+                            await database
+                                .child('messages')
+                                .push()
+                                .set(newMessage);
+                          } catch (e) {
+                            print("error $e");
+                          }
                         },
                         icon: Icon(CupertinoIcons.share_solid))
                   ],
@@ -108,5 +151,11 @@ class _ChatScreenState extends State<ChatScreen> {
         ],
       ),
     );
+  }
+
+  @override
+  void deactivate() {
+    _messageStream.cancel();
+    super.deactivate();
   }
 }

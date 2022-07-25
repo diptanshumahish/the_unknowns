@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
@@ -7,6 +8,7 @@ import 'screens/screens.dart';
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Firebase.initializeApp();
+
   runApp(const MyApp());
 }
 
@@ -18,7 +20,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: Apptheme.light(),
       darkTheme: Apptheme.dark(),
-      home: const ChatScreen(),
+      home: const SplashScreen(),
     );
   }
 }

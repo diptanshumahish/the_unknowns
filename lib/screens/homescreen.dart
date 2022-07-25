@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:the_unknowns/screens/chats/mainchatscrren.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -25,7 +26,17 @@ class _HomePageState extends State<HomePage> {
                 onPressed: () {
                   FirebaseAuth.instance.signOut();
                 },
-                child: Text("sign out"))
+                child: Text("sign out")),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: ((context) {
+                    return ChatScreen(
+                      user: user.email!,
+                    );
+                  })));
+                },
+                child: Text("CHt"))
           ],
         ),
       ),
