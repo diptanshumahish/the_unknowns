@@ -1,6 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lottie/lottie.dart';
+import 'package:the_unknowns/screens/screens.dart';
 
 import '../utils/theme.dart';
 
@@ -12,9 +15,61 @@ class NewLogin extends StatefulWidget {
 }
 
 class _NewLoginState extends State<NewLogin> {
-  var nameController = TextEditingController();
-  var passwordController = TextEditingController();
-  var ageController = TextEditingController();
+  final _nameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _newPasswordController = TextEditingController();
+
+  @override
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _passwordController.dispose();
+    _newPasswordController.dispose();
+    super.dispose();
+  }
+
+  Future signUp() async {
+    if (_nameController.text == "" || _passwordController.text == "") {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) => CupertinoAlertDialog(
+                insetAnimationDuration: const Duration(seconds: 1),
+                title: const Text("Wrong credentials"),
+                content: const Text("Incorrect password/username"),
+                actions: <Widget>[
+                  CupertinoDialogAction(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text("retry",
+                          style: TextStyle(color: AppColors.themeColor)))
+                ],
+              ));
+    } else if (_passwordController.text.trim() !=
+        _newPasswordController.text.trim()) {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) => CupertinoAlertDialog(
+                insetAnimationDuration: const Duration(seconds: 1),
+                title: const Text("No match"),
+                content: const Text("IPassword don't match"),
+                actions: <Widget>[
+                  CupertinoDialogAction(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text("retry",
+                          style: TextStyle(color: AppColors.themeColor)))
+                ],
+              ));
+    } else {
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: _nameController.text.trim(),
+          password: _passwordController.text.trim());
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => HomePage()));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +107,7 @@ class _NewLoginState extends State<NewLogin> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Yooooo helllooo There, let's get you ready! !",
+                              "New here ?, a'ight",
                               style: TextStyle(
                                   fontSize: 35,
                                   letterSpacing: 1,
@@ -62,7 +117,7 @@ class _NewLoginState extends State<NewLogin> {
                                       : AppColors.darkText.withOpacity(0.8)),
                             ),
                             Text(
-                              "Don't worry , you data will be anonymous :),",
+                              "Don't worry , your data will be anonymous :),",
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 28,
@@ -91,7 +146,7 @@ class _NewLoginState extends State<NewLogin> {
                             ),
                             TextField(
                               cursorColor: AppColors.themeColor,
-                              controller: nameController,
+                              controller: _nameController,
                               style: TextStyle(
                                   fontSize: 20,
                                   color: cond == Brightness.dark
@@ -99,14 +154,16 @@ class _NewLoginState extends State<NewLogin> {
                                       : AppColors.darkBack,
                                   letterSpacing: 2,
                                   fontWeight: FontWeight.bold),
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 enabledBorder: UnderlineInputBorder(
                                   borderSide:
                                       BorderSide(color: AppColors.themeColor),
                                 ),
                                 focusedBorder: UnderlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: AppColors.themeColor),
+                                  borderSide: BorderSide(
+                                      color: cond == Brightness.dark
+                                          ? AppColors.lightBack
+                                          : AppColors.darkBack),
                                 ),
                                 hintText: "Email here",
                               ),
@@ -133,7 +190,7 @@ class _NewLoginState extends State<NewLogin> {
                             TextField(
                               obscureText: true,
                               cursorColor: AppColors.themeColor,
-                              controller: passwordController,
+                              controller: _passwordController,
                               style: TextStyle(
                                   fontSize: 20,
                                   color: cond == Brightness.dark
@@ -141,23 +198,67 @@ class _NewLoginState extends State<NewLogin> {
                                       : AppColors.darkBack,
                                   letterSpacing: 2,
                                   fontWeight: FontWeight.bold),
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 enabledBorder: UnderlineInputBorder(
                                   borderSide:
                                       BorderSide(color: AppColors.themeColor),
                                 ),
                                 focusedBorder: UnderlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: AppColors.themeColor),
+                                  borderSide: BorderSide(
+                                      color: cond == Brightness.dark
+                                          ? AppColors.lightBack
+                                          : AppColors.darkBack),
                                 ),
                                 hintText: "Password here",
                               ),
-                              textCapitalization: TextCapitalization.words,
                             ),
                           ],
                         ),
                       ),
-                      SizedBox(height: height * 0.1),
+                      SizedBox(height: height * 0.02),
+                      Padding(
+                        padding: EdgeInsets.only(left: 30, right: 30),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Confirm Password",
+                              style: TextStyle(
+                                  fontSize: 35,
+                                  letterSpacing: 1,
+                                  color: cond == Brightness.dark
+                                      ? AppColors.lightText.withOpacity(0.7)
+                                      : AppColors.darkText.withOpacity(0.8)),
+                            ),
+                            TextField(
+                              obscureText: true,
+                              cursorColor: AppColors.themeColor,
+                              controller: _newPasswordController,
+                              style: TextStyle(
+                                  fontSize: 20,
+                                  color: cond == Brightness.dark
+                                      ? AppColors.lightBack
+                                      : AppColors.darkBack,
+                                  letterSpacing: 2,
+                                  fontWeight: FontWeight.bold),
+                              decoration: InputDecoration(
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: AppColors.themeColor),
+                                ),
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: cond == Brightness.dark
+                                          ? AppColors.lightBack
+                                          : AppColors.darkBack),
+                                ),
+                                hintText: "Password again",
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: height * 0.06),
                       Padding(
                         padding: const EdgeInsets.only(left: 30, right: 30),
                         child: ElevatedButton(
@@ -166,7 +267,9 @@ class _NewLoginState extends State<NewLogin> {
                               backgroundColor: MaterialStateProperty.all(
                                   AppColors.secThemeColor),
                             ),
-                            onPressed: () {},
+                            onPressed: () {
+                              signUp();
+                            },
                             child: Text(
                               "Sign Up!",
                               style: TextStyle(

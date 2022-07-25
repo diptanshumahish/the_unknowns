@@ -1,43 +1,49 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:lottie/lottie.dart';
-import 'package:the_unknowns/firebase/forgotpassword.dart';
-import 'package:the_unknowns/screens/newlogin.dart';
+import 'package:the_unknowns/utils/theme.dart';
 
-import '../utils/theme.dart';
-
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+class ForgotPassword extends StatefulWidget {
+  const ForgotPassword({Key? key}) : super(key: key);
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<ForgotPassword> createState() => _ForgotPasswordState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _ForgotPasswordState extends State<ForgotPassword> {
   final _nameController = TextEditingController();
-  final _passwordController = TextEditingController();
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
 
-  Future signIn() async {
-    {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: _nameController.text.trim(),
-          password: _passwordController.text.trim());
+  Future passwordReset() async {
+    try {
+      await FirebaseAuth.instance
+          .sendPasswordResetEmail(email: _nameController.text.trim());
+      showDialog(
+          context: context,
+          builder: (BuildContext context) => CupertinoAlertDialog(
+                insetAnimationDuration: const Duration(seconds: 1),
+                title: const Text("Success"),
+                content: const Text("Password reset link sent!"),
+                actions: <Widget>[
+                  CupertinoDialogAction(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text("Done",
+                          style: TextStyle(color: AppColors.themeColor)))
+                ],
+              ));
+    } on FirebaseAuthException catch (e) {
+      print(e);
     }
   }
 
   @override
-  void dispose() {
-    _nameController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    //firebase authentication
-
     var cond = Theme.of(context).brightness;
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
@@ -70,7 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Welcome to the,",
+                              "Forgot your password?,",
                               style: TextStyle(
                                   fontSize: 35,
                                   letterSpacing: 1,
@@ -80,7 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       : AppColors.darkText.withOpacity(0.8)),
                             ),
                             Text(
-                              "Unknowns",
+                              "No issues:)",
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 35,
@@ -134,73 +140,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       SizedBox(height: height * 0.02),
-                      Padding(
-                        padding: EdgeInsets.only(left: 30, right: 30),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "password",
-                              style: TextStyle(
-                                  fontSize: 35,
-                                  letterSpacing: 1,
-                                  color: cond == Brightness.dark
-                                      ? AppColors.lightText.withOpacity(0.7)
-                                      : AppColors.darkText.withOpacity(0.8)),
-                            ),
-                            TextField(
-                              obscureText: true,
-                              cursorColor: AppColors.themeColor,
-                              controller: _passwordController,
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  color: cond == Brightness.dark
-                                      ? AppColors.lightBack
-                                      : AppColors.darkBack,
-                                  letterSpacing: 2,
-                                  fontWeight: FontWeight.bold),
-                              decoration: const InputDecoration(
-                                enabledBorder: UnderlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: AppColors.themeColor),
-                                ),
-                                focusedBorder: UnderlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: AppColors.themeColor),
-                                ),
-                                hintText: "Password here",
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 30, right: 30),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            CupertinoButton(
-                                padding: EdgeInsets.zero,
-                                child: Text(
-                                  "Forgot password?",
-                                  style: TextStyle(
-                                      color: AppColors.secThemeColorDark,
-                                      fontSize: 18,
-                                      letterSpacing: 1,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily:
-                                          GoogleFonts.amaticSc().fontFamily),
-                                ),
-                                onPressed: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: ((context) =>
-                                              ForgotPassword())));
-                                }),
-                          ],
-                        ),
-                      ),
                       SizedBox(height: height * 0.02),
                       Padding(
                         padding: const EdgeInsets.only(left: 30, right: 30),
@@ -211,10 +150,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                   AppColors.secThemeColor),
                             ),
                             onPressed: () {
-                              signIn();
+                              passwordReset();
                             },
                             child: const Text(
-                              "Login!",
+                              "Reset password",
                               style: TextStyle(
                                   fontSize: 20,
                                   color: AppColors.darkBack,
@@ -222,22 +161,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                   fontWeight: FontWeight.bold),
                             )),
                       ),
-                      CupertinoButton(
-                          child: Text(
-                            "Create new account?",
-                            style: TextStyle(
-                                color: AppColors.secThemeColorDark,
-                                fontSize: 25,
-                                letterSpacing: 1,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: GoogleFonts.amaticSc().fontFamily),
-                          ),
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: ((context) => NewLogin())));
-                          })
                     ],
                   ),
                 )
